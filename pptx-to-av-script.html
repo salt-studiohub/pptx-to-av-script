@@ -2,43 +2,89 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PPTX to AV Script</title>
 <style>
-:root{--bg:#f6f7f9;--fg:#1c2330;--mut:#667085;--card:#fff;--line:#d9dde4;--acc:#2f5fd0;--err:#b42318}
-@media (prefers-color-scheme:dark){:root{--bg:#14171c;--fg:#e8ebf0;--mut:#98a2b3;--card:#1d222a;--line:#333b47;--acc:#7da2ff;--err:#ff8a80}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
-main{max-width:1000px;margin:0 auto;padding:24px 16px 64px}
-h1{font-size:1.5rem;margin:0 0 4px}p.sub{color:var(--mut);margin:0 0 20px}
-#drop{display:block;border:2px dashed var(--line);border-radius:12px;background:var(--card);padding:36px 16px;text-align:center;cursor:pointer}
-#drop.over,#drop:hover{border-color:var(--acc)}#drop input{display:none}
-#drop b{color:var(--acc)}
+:root{--bg:#f4f6fb;--fg:#1a2233;--mut:#5d6b82;--card:#fff;--line:#dbe1ec;--acc:#3b5bdb;--acc2:#7048e8;--accsoft:#eef2ff;--ok:#12805c;--err:#b42318;--shadow:0 1px 2px rgba(20,30,60,.06),0 8px 24px rgba(20,30,60,.06)}
+@media (prefers-color-scheme:dark){:root{--bg:#10131a;--fg:#e8ebf2;--mut:#9aa6bb;--card:#1a1f2a;--line:#2d3544;--acc:#8ba4ff;--acc2:#b197fc;--accsoft:#232a3d;--ok:#5fd3a5;--err:#ff8a80;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25)}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:1000px;margin:0 auto;padding:0 16px 64px}
+header.hero{margin:0 -16px 28px;padding:44px 16px 36px;text-align:center;color:#fff;background:linear-gradient(135deg,#3b5bdb,#7048e8)}
+header.hero h1{font-size:clamp(1.6rem,4vw,2.3rem);margin:0 0 8px;letter-spacing:-.01em}
+header.hero p{margin:0 auto;max-width:620px;opacity:.92}
+.badge{display:inline-block;margin-top:14px;padding:4px 12px;border-radius:99px;background:rgba(255,255,255,.18);font-size:.85rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:20px;margin-bottom:20px}
+h2{font-size:1.05rem;margin:0 0 12px}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.steps li{display:flex;gap:12px;align-items:flex-start;font-size:.93rem}
+.steps li b{display:block}.steps li span{color:var(--mut)}
+.steps .n{flex:none;width:30px;height:30px;border-radius:50%;background:var(--accsoft);color:var(--acc);font-weight:700;display:grid;place-items:center}
+p.sub{color:var(--mut);margin:0 0 12px;font-size:.92rem}
+#drop{display:block;border:2px dashed var(--line);border-radius:14px;background:var(--card);padding:40px 16px;text-align:center;cursor:pointer;transition:.15s;margin-bottom:6px}
+#drop.over,#drop:hover,#drop:focus-within{border-color:var(--acc);background:var(--accsoft)}
+#drop input{display:none}
+#drop .ico{font-size:2.2rem;display:block;margin-bottom:6px}
+#drop b{color:var(--acc);font-size:1.1rem}
+#drop small{display:block;color:var(--mut);margin-top:6px}
 .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:14px 0}
-label{color:var(--mut);font-size:.9rem}select,input[type=text]{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg)}
+label{color:var(--mut);font-size:.9rem}
+select,input[type=text]{font:inherit;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg)}
+select:focus,input[type=text]:focus,textarea:focus{outline:2px solid var(--acc);outline-offset:1px}
 input[type=text]{flex:1;min-width:200px}
-button{font:inherit;background:var(--acc);color:#fff;border:0;border-radius:8px;padding:10px 18px;cursor:pointer;font-weight:600}
+button{font:inherit;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border:0;border-radius:10px;padding:11px 22px;cursor:pointer;font-weight:600;box-shadow:0 2px 8px rgba(59,91,219,.3)}
+button:hover:not(:disabled){filter:brightness(1.08)}
 button:disabled{opacity:.5;cursor:default}
-#status{margin:12px 0;min-height:1.5em}#status.err{color:var(--err)}
-.prog{height:6px;background:var(--line);border-radius:3px;overflow:hidden}#bar{height:100%;width:0;background:var(--acc);transition:width .2s}
+details{margin:10px 0 0}summary{cursor:pointer;color:var(--acc);font-weight:600;font-size:.93rem}
+#status{margin:14px 0;min-height:1.5em;padding:10px 14px;border-radius:10px;background:var(--accsoft);border-left:4px solid var(--acc)}
+#status.err{color:var(--err);border-left-color:var(--err);background:color-mix(in srgb,var(--err) 10%,var(--card))}
+.prog{height:6px;background:var(--line);border-radius:3px;overflow:hidden}#bar{height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .2s}
+.tablewrap{border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
 table{width:100%;border-collapse:collapse;background:var(--card)}
-th,td{border:1px solid var(--line);padding:10px;vertical-align:top}th{background:color-mix(in srgb,var(--acc) 15%,var(--card));letter-spacing:.05em}
-td:first-child{width:58%}td img{width:100%;display:block;border:1px solid var(--line)}.cap{font-size:.8rem;color:var(--mut);margin-top:4px}
-textarea{width:100%;font:inherit;border:1px solid var(--line);border-radius:6px;padding:8px;background:var(--bg);color:var(--fg);resize:vertical}
+th,td{border-bottom:1px solid var(--line);padding:12px;vertical-align:top}
+td:first-child,th:first-child{border-right:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+th{background:var(--accsoft);color:var(--acc);letter-spacing:.1em;font-size:.82rem}
+td:first-child{width:58%}td img{width:100%;display:block;border:1px solid var(--line);border-radius:6px}.cap{font-size:.8rem;color:var(--mut);margin-top:4px}
+textarea{width:100%;font:inherit;border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--bg);color:var(--fg);resize:vertical}
+footer{text-align:center;color:var(--mut);font-size:.85rem;margin-top:32px}
 #stage{position:fixed;left:-100000px;top:0;width:1000px;pointer-events:none}
-@media(max-width:640px){td:first-child{width:50%}}
+@media(max-width:640px){td:first-child{width:50%}#drop{padding:28px 12px}}
 </style></head><body><main>
+<header class="hero">
 <h1>PPTX → AV Script</h1>
-<p class="sub">Works fully offline — your file never leaves this device. Each slide becomes a row: slide picture under VIDEO, speaker notes under AUDIO.</p>
-<label id="drop"><input type="file" id="file" accept=".pptx,.ppt,application/vnd.openxmlformats-officedocument.presentationml.presentation"><b>Choose a PowerPoint file</b> (.pptx; .ppt must be saved as .pptx first) or drop it here</label>
+<p>Turn a PowerPoint into a two-column Word script: the slide picture on the left (VIDEO), the speaker notes on the right (AUDIO).</p>
+<span class="badge">🔒 Runs offline — your file never leaves this device</span>
+</header>
+
+<section class="card" aria-labelledby="how">
+<h2 id="how">How it works</h2>
+<ol class="steps">
+<li><div class="n">1</div><div><b>Upload</b><span>Choose or drop your .pptx file below.</span></div></li>
+<li><div class="n">2</div><div><b>Review</b><span>Check each slide and edit the audio text if needed.</span></div></li>
+<li><div class="n">3</div><div><b>Download</b><span>Click “Download Word document” to get your AV script.</span></div></li>
+</ol>
+</section>
+
+<label id="drop"><input type="file" id="file" accept=".pptx,.ppt,application/vnd.openxmlformats-officedocument.presentationml.presentation"><span class="ico">📄</span><b>Choose a PowerPoint file</b> or drop it here<small>.pptx only — if you have a .ppt, open it in PowerPoint and use File &gt; Save As &gt; .pptx first.</small></label>
+
 <div class="row"><label for="scale">Image sharpness</label>
-<select id="scale"><option value="1">Standard</option><option value="2" selected>High</option><option value="3">Very high (large file)</option></select></div>
-<details style="margin:8px 0"><summary class="sub" style="cursor:pointer">Slides look different from PowerPoint? (optional)</summary>
-<div class="row"><label for="imgs">Add your deck saved as PDF from PowerPoint (File &gt; Save As &gt; PDF) for an exact match</label><input type="file" id="imgs" accept="application/pdf,.pdf,image/*" multiple><span id="imginfo" class="sub"></span></div>
-<p class="sub">Choose the PDF, then upload the .pptx (or the other way round). The slide pictures then come straight from PowerPoint.</p></details>
+<select id="scale"><option value="1">Standard (smaller file)</option><option value="2" selected>High (recommended)</option><option value="3">Very high (large file)</option></select></div>
+
+<details class="card">
+<summary>Slides look different from PowerPoint? (optional)</summary>
+<p class="sub" style="margin-top:10px">For an exact match, export your deck as a PDF from PowerPoint (File &gt; Save As &gt; PDF) and add it here. The slide pictures then come straight from PowerPoint. Pick the PDF and the .pptx in either order. Tip: tick “Include hidden slides” if your deck has any.</p>
+<div class="row"><label for="imgs">PDF or slide images</label><input type="file" id="imgs" accept="application/pdf,.pdf,image/*" multiple><span id="imginfo" class="sub"></span></div>
+</details>
+
 <div id="status" role="status">Pick a presentation to begin.</div>
 <div class="prog" hidden><div id="bar"></div></div>
 <section id="preview" hidden>
+<div class="card">
+<h2>Your script is ready</h2>
+<p class="sub">Edit the audio text in any row, give the document a title, then download. The Word file also includes a consolidated copy of all notes at the end.</p>
 <div class="row"><label for="title">Document title</label><input type="text" id="title"><span id="count" class="sub"></span><button id="go">Download Word document</button></div>
-<p class="sub">You can edit the audio text below before downloading.</p>
-<table><thead><tr><th>VIDEO</th><th>AUDIO</th></tr></thead><tbody id="rows"></tbody></table>
+</div>
+<div class="tablewrap"><table><thead><tr><th>VIDEO</th><th>AUDIO</th></tr></thead><tbody id="rows"></tbody></table></div>
 </section>
+<footer>Tip: processing large decks can take a minute — keep this tab open.</footer>
 <div id="stage" aria-hidden="true"></div>
 </main>
 <script>(()=>{var lGt=Object.create;var dD=Object.defineProperty;var cGt=Object.getOwnPropertyDescriptor;var fGt=Object.getOwnPropertyNames;var W0t=Object.getPrototypeOf,uGt=Object.prototype.hasOwnProperty;var hGt=Reflect.get;var $0t=r=>{throw TypeError(r)};var dGt=(r,t,e)=>t in r?dD(r,t,{enumerable:!0,configurable:!0,writable:!0,value:e}):r[t]=e;var tk=(r=>typeof require<"u"?require:typeof Proxy<"u"?new Proxy(r,{get:(t,e)=>(typeof require<"u"?require:t)[e]}):r)(function(r){if(typeof require<"u")return require.apply(this,arguments);throw Error('Dynamic require of "'+r+'" is not supported')});var X0t=(r,t)=>()=>{try{return t||r((t={exports:{}}).exports,t),t.exports}catch(e){throw t=0,e}},K0t=(r,t)=>{for(var e in t)dD(r,e,{get:t[e],enumerable:!0})},pGt=(r,t,e,n)=>{if(t&&typeof t=="object"||typeof t=="function")for(let i of fGt(t))!uGt.call(r,i)&&i!==e&&dD(r,i,{get:()=>t[i],enumerable:!(n=cGt(t,i))||n.enumerable});return r};var UV=(r,t,e)=>(e=r!=null?lGt(W0t(r)):{},pGt(t||!r||!r.__esModule?dD(e,"default",{value:r,enumerable:!0}):e,r));var tt=(r,t,e)=>dGt(r,typeof t!="symbol"?t+"":t,e),VV=(r,t,e)=>t.has(r)||$0t("Cannot "+e);var y=(r,t,e)=>(VV(r,t,"read from private field"),e?e.call(r):t.get(r)),O=(r,t,e)=>t.has(r)?$0t("Cannot add the same private member more than once"):t instanceof WeakSet?t.add(r):t.set(r,e),R=(r,t,e,n)=>(VV(r,t,"write to private field"),n?n.call(r,e):t.set(r,e),e),P=(r,t,e)=>(VV(r,t,"access private method"),e);var Xe=(r,t,e,n)=>({set _(i){R(r,t,i,e)},get _(){return y(r,t,n)}}),Y0t=(r,t,e)=>hGt(W0t(r),e,t);var $V=X0t((Z0t,WV)=>{(function(r){typeof Z0t=="object"&&typeof WV<"u"?WV.exports=r():typeof define=="function"&&define.amd?define([],r):(typeof window<"u"?window:typeof global<"u"?global:typeof self<"u"?self:this).JSZip=r()})(function(){return(function r(t,e,n){function i(o,l){if(!e[o]){if(!t[o]){var c=typeof tk=="function"&&tk;if(!l&&c)return c(o,!0);if(a)return a(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var u=e[o]={exports:{}};t[o][0].call(u.exports,function(h){var d=t[o][1][h];return i(d||h)},u,u.exports,r,t,e,n)}return e[o].exports}for(var a=typeof tk=="function"&&tk,s=0;s<n.length;s++)i(n[s]);return i})({1:[function(r,t,e){"use strict";var n=r("./utils"),i=r("./support"),a="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";e.encode=function(s){for(var o,l,c,f,u,h,d,p=[],g=0,v=s.length,w=v,m=n.getTypeOf(s)!=="string";g<s.length;)w=v-g,c=m?(o=s[g++],l=g<v?s[g++]:0,g<v?s[g++]:0):(o=s.charCodeAt(g++),l=g<v?s.charCodeAt(g++):0,g<v?s.charCodeAt(g++):0),f=o>>2,u=(3&o)<<4|l>>4,h=1<w?(15&l)<<2|c>>6:64,d=2<w?63&c:64,p.push(a.charAt(f)+a.charAt(u)+a.charAt(h)+a.charAt(d));return p.join("")},e.decode=function(s){var o,l,c,f,u,h,d=0,p=0,g="data:";if(s.substr(0,g.length)===g)throw new Error("Invalid base64 input, it looks like a data url.");var v,w=3*(s=s.replace(/[^A-Za-z0-9+/=]/g,"")).length/4;if(s.charAt(s.length-1)===a.charAt(64)&&w--,s.charAt(s.length-2)===a.charAt(64)&&w--,w%1!=0)throw new Error("Invalid base64 input, bad content length.");for(v=i.uint8array?new Uint8Array(0|w):new Array(0|w);d<s.length;)o=a.indexOf(s.charAt(d++))<<2|(f=a.indexOf(s.charAt(d++)))>>4,l=(15&f)<<4|(u=a.indexOf(s.charAt(d++)))>>2,c=(3&u)<<6|(h=a.indexOf(s.charAt(d++))),v[p++]=o,u!==64&&(v[p++]=l),h!==64&&(v[p++]=c);return v}},{"./support":30,"./utils":32}],2:[function(r,t,e){"use strict";var n=r("./external"),i=r("./stream/DataWorker"),a=r("./stream/Crc32Probe"),s=r("./stream/DataLengthProbe");function o(l,c,f,u,h){this.compressedSize=l,this.uncompressedSize=c,this.crc32=f,this.compression=u,this.compressedContent=h}o.prototype={getContentWorker:function(){var l=new i(n.Promise.resolve(this.compressedContent)).pipe(this.compression.uncompressWorker()).pipe(new s("data_length")),c=this;return l.on("end",function(){if(this.streamInfo.data_length!==c.uncompressedSize)throw new Error("Bug : uncompressed data size mismatch")}),l},getCompressedWorker:function(){return new i(n.Promise.resolve(this.compressedContent)).withStreamInfo("compressedSize",this.compressedSize).withStreamInfo("uncompressedSize",this.uncompressedSize).withStreamInfo("crc32",this.crc32).withStreamInfo("compression",this.compression)}},o.createWorkerFrom=function(l,c,f){return l.pipe(new a).pipe(new s("uncompressedSize")).pipe(c.compressWorker(f)).pipe(new s("compressedSize")).withStreamInfo("compression",c)},t.exports=o},{"./external":6,"./stream/Crc32Probe":25,"./stream/DataLengthProbe":26,"./stream/DataWorker":27}],3:[function(r,t,e){"use strict";var n=r("./stream/GenericWorker");e.STORE={magic:"\0\0",compressWorker:function(){return new n("STORE compression")},uncompressWorker:function(){return new n("STORE decompression")}},e.DEFLATE=r("./flate")},{"./flate":7,"./stream/GenericWorker":28}],4:[function(r,t,e){"use strict";var n=r("./utils"),i=(function(){for(var a,s=[],o=0;o<256;o++){a=o;for(var l=0;l<8;l++)a=1&a?3988292384^a>>>1:a>>>1;s[o]=a}return s})();t.exports=function(a,s){return a!==void 0&&a.length?n.getTypeOf(a)!=="string"?(function(o,l,c,f){var u=i,h=f+c;o^=-1;for(var d=f;d<h;d++)o=o>>>8^u[255&(o^l[d])];return-1^o})(0|s,a,a.length,0):(function(o,l,c,f){var u=i,h=f+c;o^=-1;for(var d=f;d<h;d++)o=o>>>8^u[255&(o^l.charCodeAt(d))];return-1^o})(0|s,a,a.length,0):0}},{"./utils":32}],5:[function(r,t,e){"use strict";e.base64=!1,e.binary=!1,e.dir=!1,e.createFolders=!0,e.date=null,e.compression=null,e.compressionOptions=null,e.comment=null,e.unixPermissions=null,e.dosPermissions=null},{}],6:[function(r,t,e){"use strict";var n=null;n=typeof Promise<"u"?Promise:r("lie"),t.exports={Promise:n}},{lie:37}],7:[function(r,t,e){"use strict";var n=typeof Uint8Array<"u"&&typeof Uint16Array<"u"&&typeof Uint32Array<"u",i=r("pako"),a=r("./utils"),s=r("./stream/GenericWorker"),o=n?"uint8array":"array";function l(c,f){s.call(this,"FlateWorker/"+c),this._pako=null,this._pakoAction=c,this._pakoOptions=f,this.meta={}}e.magic="\b\0",a.inherits(l,s),l.prototype.processChunk=function(c){this.meta=c.meta,this._pako===null&&this._createPako(),this._pako.push(a.transformTo(o,c.data),!1)},l.prototype.flush=function(){s.prototype.flush.call(this),this._pako===null&&this._createPako(),this._pako.push([],!0)},l.prototype.cleanUp=function(){s.prototype.cleanUp.call(this),this._pako=null},l.prototype._createPako=function(){this._pako=new i[this._pakoAction]({raw:!0,level:this._pakoOptions.level||-1});var c=this;this._pako.onData=function(f){c.push({data:f,meta:c.meta})}},e.compressWorker=function(c){return new l("Deflate",c)},e.uncompressWorker=function(){return new l("Inflate",{})}},{"./stream/GenericWorker":28,"./utils":32,pako:38}],8:[function(r,t,e){"use strict";function n(u,h){var d,p="";for(d=0;d<h;d++)p+=String.fromCharCode(255&u),u>>>=8;return p}function i(u,h,d,p,g,v){var w,m,b=u.file,x=u.compression,S=v!==o.utf8encode,_=a.transformTo("string",v(b.name)),A=a.transformTo("string",o.utf8encode(b.name)),T=b.comment,I=a.transformTo("string",v(T)),j=a.transformTo("string",o.utf8encode(T)),E=A.length!==b.name.length,M=j.length!==T.length,q="",F="",L="",N=b.dir,H=b.date,z={crc32:0,compressedSize:0,uncompressedSize:0};h&&!d||(z.crc32=u.crc32,z.compressedSize=u.compressedSize,z.uncompressedSize=u.uncompressedSize);var U=0;h&&(U|=8),S||!E&&!M||(U|=2048);var $=0,J=0;N&&($|=16),g==="UNIX"?(J=798,$|=(function(K,dt){var wt=K;return K||(wt=dt?16893:33204),(65535&wt)<<16})(b.unixPermissions,N)):(J=20,$|=(function(K){return 63&(K||0)})(b.dosPermissions)),w=H.getUTCHours(),w<<=6,w|=H.getUTCMinutes(),w<<=5,w|=H.getUTCSeconds()/2,m=H.getUTCFullYear()-1980,m<<=4,m|=H.getUTCMonth()+1,m<<=5,m|=H.getUTCDate(),E&&(F=n(1,1)+n(l(_),4)+A,q+="up"+n(F.length,2)+F),M&&(L=n(1,1)+n(l(I),4)+j,q+="uc"+n(L.length,2)+L);var X="";return X+=`
